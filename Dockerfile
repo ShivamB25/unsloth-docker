@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 # Install Ubuntu packages
 RUN apt-get update && apt-get install -y \
@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     curl \
     vim \
+    cuda-nvcc-12-4 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
