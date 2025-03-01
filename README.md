@@ -9,7 +9,7 @@ This repository contains a Docker-based environment for fine-tuning the Mistral 
 - NVIDIA Container Toolkit installed
 
 ## Running the Container
-The image is hosted on [Docker Hub](/guides/content/editing-an-existing-page)
+The image is hosted on [Docker Hub](https://hub.docker.com/r/barrahome/unsloth-docker)
 You can run the container in different modes:
 
 1. Run with bash shell only (default):
