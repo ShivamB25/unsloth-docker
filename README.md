@@ -16,7 +16,7 @@ You can run the container in different modes:
 ```bash
 docker run -it --gpus all \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-  unsloth-docker
+  barrahome/unsloth-docker
 ```
 
 2. Run with Jupyter Notebook:
@@ -25,7 +25,7 @@ docker run -it --gpus all \
   -p 8888:8888 \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   -e ENABLE_JUPYTER=true \
-  unsloth-docker
+  barrahome/unsloth-docker
 ```
 
 3. Run with JupyterLab (enhanced interface):
@@ -35,7 +35,7 @@ docker run -it --gpus all \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   -e ENABLE_JUPYTER=true \
   -e USE_JUPYTERLAB=true \
-  unsloth-docker
+  barrahome/unsloth-docker
 ```
 
 ## Jupyter Interfaces
@@ -74,7 +74,7 @@ docker run -it --gpus all \
   -v $HOME/.cache/huggingface/hub:/root/.cache/huggingface/hub \  # Model weights and files
   -v $HOME/.cache/huggingface/datasets:/root/.cache/huggingface/datasets \  # Dataset cache
   -v $HOME/.cache/huggingface/accelerate:/root/.cache/huggingface/accelerate \  # Accelerate configs
-  unsloth-docker
+  barrahome/unsloth-docker
 ```
 
 ## Container Features
