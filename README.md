@@ -83,3 +83,12 @@ docker run -it --gpus all \
 - **Jupyter Integration**: Optional Jupyter Notebook server for interactive development
 - **Development Tools**: Includes nano, vim, wget, curl, and other utilities for convenience
 - **GPU Acceleration**: Full CUDA support for efficient model training
+
+## Flash attention
+
+Do you need to install Flash Attention? Run these commands in your container:
+
+```bash
+apt-get update; apt-get install -y cuda-nvcc-12-4; rm -rf /var/lib/apt/lists/*
+pip install flash-attn --no-build-isolation
+```
