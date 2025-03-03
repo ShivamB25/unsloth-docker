@@ -21,8 +21,8 @@ RUN pip install --upgrade pip && \
     pip install --no-deps cut_cross_entropy unsloth_zoo && \
     pip install sentencepiece protobuf datasets huggingface_hub hf_transfer && \
     pip install psutil transformers rich diffusers && \
-    pip install matplotlib scikit-learn 
-    
+    pip install matplotlib scikit-learn ipywidgets
+
 # We install Unsloth at runtime in entrypoint.sh
 
 # Copy finetune script and entrypoint
