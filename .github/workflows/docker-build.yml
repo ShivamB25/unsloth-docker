@@ -8,16 +8,56 @@ on:
   pull_request:
     branches:
       - main
+  schedule:
+    # Runs daily at midnight UTC. Adjust cron syntax as needed.
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
+    # Grant permissions to commit back the updated hash file
+    permissions:
+      contents: write
     steps:
+      # Checkout your repository. Fetch depth 0 needed for commit/push later.
       - name: Checkout
-        uses: actions/checkout@v4 # Use a specific version like v4.2.2 if needed
+        uses: actions/checkout@v4
+        with:
+          # Use PAT if pushing from action requires it (recommended)
+          # token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0 # Required to push changes back
 
+      # Step to check for Unsloth updates, only runs on schedule or manual dispatch
+      - name: Check for Unsloth Updates
+        id: check_unsloth
+        # Only run this check on schedule or manual trigger
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Checking for Unsloth updates..."
+          LATEST_UNSLOTH_COMMIT=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/unslothai/unsloth/commits/main | jq -r '.sha')
+          STORED_COMMIT_FILE=".unsloth_last_commit"
+          LAST_KNOWN_COMMIT=""
+          if [[ -f "$STORED_COMMIT_FILE" ]]; then
+            LAST_KNOWN_COMMIT=$(cat "$STORED_COMMIT_FILE")
+          fi
+
+          echo "Latest Unsloth commit: $LATEST_UNSLOTH_COMMIT"
+          echo "Last known commit used for build: $LAST_KNOWN_COMMIT"
+
+          if [[ "$LATEST_UNSLOTH_COMMIT" != "$LAST_KNOWN_COMMIT" ]]; then
+            echo "Unsloth has been updated. Triggering build."
+            echo "unsloth_updated=true" >> $GITHUB_OUTPUT
+            echo "latest_commit=$LATEST_UNSLOTH_COMMIT" >> $GITHUB_OUTPUT
+          else
+            echo "No Unsloth update detected."
+            echo "unsloth_updated=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      # Setup Buildx - run always if build might happen
       - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v3 # Use a specific version like v3.10.0 if needed
+        uses: docker/setup-buildx-action@v3
 
       - name: Docker Login
         uses: docker/login-action@v3 # Use a specific version like v3.4.0 if needed
@@ -25,10 +65,33 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      # Build and push only on push/pr or if unsloth was updated on schedule/dispatch
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6 # Use a specific version like v6.15.0 if needed
+        id: docker_build
+        # Condition: Run on push/pr OR if the check step detected an update
+        if: github.event_name == 'push' || github.event_name == 'pull_request' || steps.check_unsloth.outputs.unsloth_updated == 'true'
+        uses: docker/build-push-action@v6
         with:
-          context: . # Use the root directory as context
-          file: ./Dockerfile # Specify the Dockerfile location
-          push: true
-          tags: shivamb25/unsloth-dev:latest # Use the desired tag format
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }} # Only push if not a PR
+          tags: shivamb25/unsloth-dev:latest
+
+      # Update the stored commit hash if the build was triggered by schedule/dispatch update
+      - name: Update Last Known Unsloth Commit
+        if: steps.check_unsloth.outputs.unsloth_updated == 'true' && steps.docker_build.outcome == 'success' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        run: |
+          echo "Updating .unsloth_last_commit file..."
+          echo "${{ steps.check_unsloth.outputs.latest_commit }}" > .unsloth_last_commit
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .unsloth_last_commit
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit in .unsloth_last_commit."
+          else
+            git commit -m "chore: Update last known Unsloth commit hash [skip ci]"
+            # Consider using PAT here if needed: git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+        shell: bash
