@@ -2,7 +2,11 @@
 set -e
 echo "=== Starting entrypoint script ==="
 
-
+# Install Unsloth
+echo "Installing Unsloth..."
+INSTALL_CMD=$(wget -qO- https://raw.githubusercontent.com/unslothai/unsloth/main/unsloth/_auto_install.py | python -)
+echo "Running installation command: $INSTALL_CMD"
+eval "$INSTALL_CMD"
 
 # Inverted logic: default is bash, and only if ENABLE_JUPYTER=true will Jupyter run
 if [ "${ENABLE_JUPYTER}" = "true" ]; then
