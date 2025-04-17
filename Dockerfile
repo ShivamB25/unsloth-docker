@@ -23,7 +23,11 @@ RUN pip install --upgrade pip && \
     pip install psutil transformers rich diffusers && \
     pip install matplotlib scikit-learn ipywidgets
 
-# We install Unsloth at runtime in entrypoint.sh
+# Install Unsloth
+RUN echo "Installing Unsloth..." && \
+    INSTALL_CMD=$(wget -qO- https://raw.githubusercontent.com/unslothai/unsloth/main/unsloth/_auto_install.py | python -) && \
+    echo "Running installation command: $INSTALL_CMD" && \
+    eval "$INSTALL_CMD"
 
 # Copy finetune script and entrypoint
 COPY finetune.py /app/
