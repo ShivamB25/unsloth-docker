@@ -1,5 +1,5 @@
-# Multi-stage build for optimization - Using latest CUDA 12.4 with Ubuntu 24.04
-FROM nvidia/cuda:12.4.1-runtime-ubuntu24.04 as builder
+# Multi-stage build for optimization - Using latest CUDA 12.4 with Ubuntu 22.04
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04 as builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -47,7 +47,7 @@ RUN echo "torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124" > /tm
 RUN uv pip install --system -r /tmp/requirements.txt
 
 # Final runtime stage
-FROM nvidia/cuda:12.4.1-runtime-ubuntu24.04
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
 
 # Install minimal runtime dependencies
 RUN apt-get update && apt-get install -y \
@@ -60,8 +60,8 @@ RUN apt-get update && apt-get install -y \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed packages from builder stage (Ubuntu 24.04 uses Python 3.12)
-COPY --from=builder /usr/local/lib/python3.12 /usr/local/lib/python3.12
+# Copy installed packages from builder stage (Ubuntu 22.04 uses Python 3.10)
+COPY --from=builder /usr/local/lib/python3.10 /usr/local/lib/python3.10
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Install uv in final stage for any future package additions
