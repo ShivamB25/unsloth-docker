@@ -9,14 +9,14 @@ This repository contains a Docker-based environment for fine-tuning the Mistral 
 - NVIDIA Container Toolkit installed
 
 ## Running the Container
-The image is hosted on [Docker Hub](https://hub.docker.com/r/barrahome/unsloth-docker)
+The image is hosted on [Docker Hub](https://hub.docker.com/repository/docker/shivamb25/unsloth-dev)
 You can run the container in different modes:
 
 1. Run with bash shell only (default):
 ```bash
 docker run -it --gpus all \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
-  barrahome/unsloth-docker
+  shivamb25/unsloth-dev
 ```
 
 2. Run with Jupyter Notebook:
@@ -25,7 +25,7 @@ docker run -it --gpus all \
   -p 8888:8888 \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   -e ENABLE_JUPYTER=true \
-  barrahome/unsloth-docker
+  shivamb25/unsloth-dev
 ```
 
 3. Run with JupyterLab (enhanced interface):
@@ -35,7 +35,7 @@ docker run -it --gpus all \
   -v $HOME/.cache/huggingface:/root/.cache/huggingface \
   -e ENABLE_JUPYTER=true \
   -e USE_JUPYTERLAB=true \
-  barrahome/unsloth-docker
+  shivamb25/unsloth-dev
 ```
 
 ## Jupyter Interfaces
@@ -74,7 +74,7 @@ docker run -it --gpus all \
   -v $HOME/.cache/huggingface/hub:/root/.cache/huggingface/hub \  # Model weights and files
   -v $HOME/.cache/huggingface/datasets:/root/.cache/huggingface/datasets \  # Dataset cache
   -v $HOME/.cache/huggingface/accelerate:/root/.cache/huggingface/accelerate \  # Accelerate configs
-  barrahome/unsloth-docker
+  shivamb25/unsloth-dev
 ```
 
 ## Container Features
