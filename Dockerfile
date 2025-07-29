@@ -18,11 +18,12 @@ RUN apt-get update && apt-get install -y \
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/root/.local/bin:$PATH"
 
-# Create requirements file for uv
-RUN echo "torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124" > /tmp/requirements.txt && \
-    echo "torchvision --index-url https://download.pytorch.org/whl/cu124" >> /tmp/requirements.txt && \
-    echo "torchaudio --index-url https://download.pytorch.org/whl/cu124" >> /tmp/requirements.txt && \
-    echo "bitsandbytes" >> /tmp/requirements.txt && \
+# Install PyTorch packages with specific index URL using uv
+RUN uv pip install --system --index-url https://download.pytorch.org/whl/cu124 \
+    torch==2.6.0 torchvision torchaudio
+
+# Create requirements file for other packages (without index URLs)
+RUN echo "bitsandbytes" > /tmp/requirements.txt && \
     echo "accelerate" >> /tmp/requirements.txt && \
     echo "xformers==0.0.29" >> /tmp/requirements.txt && \
     echo "peft" >> /tmp/requirements.txt && \
@@ -43,7 +44,7 @@ RUN echo "torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124" > /tm
     echo "scikit-learn" >> /tmp/requirements.txt && \
     echo "ipywidgets" >> /tmp/requirements.txt
 
-# Install packages using uv (much faster than pip)
+# Install remaining packages using uv
 RUN uv pip install --system -r /tmp/requirements.txt
 
 # Final runtime stage
